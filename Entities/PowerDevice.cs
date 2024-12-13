@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace APIServerSmartHome.Entities
 {
     [Table("PowerDevice")]
-    public class PowerDevice
+    public class PowerDevice : BasicEntity<PowerDevice>
     {
         public int PowerValue { get; set; }
         public DateTime TimeStamp { get; set; }

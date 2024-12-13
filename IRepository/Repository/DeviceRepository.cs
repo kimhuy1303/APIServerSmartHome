@@ -1,6 +1,12 @@
-﻿namespace APIServerSmartHome.IRepository.Repository
+﻿using APIServerSmartHome.Data;
+using APIServerSmartHome.Entities;
+
+namespace APIServerSmartHome.IRepository.Repository
 {
-    public class DeviceRepository : IDeviceRepository
+    public class DeviceRepository : RepositoryBase<Device>, IDeviceRepository
     {
+        public DeviceRepository(SmartHomeDbContext context) : base(context)
+        {
+        }
     }
 }

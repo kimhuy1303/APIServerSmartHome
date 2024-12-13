@@ -1,6 +1,8 @@
-﻿namespace APIServerSmartHome.IRepository
+﻿using APIServerSmartHome.Entities;
+
+namespace APIServerSmartHome.IRepository
 {
-    public interface IDeviceRepository
+    public interface IDeviceRepository : IRepositoryBase<Device>
     {
     }
 }

@@ -5,10 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace APIServerSmartHome.Entities
 {
     [Table("Device")]
-    public class Device
+    public class Device : BasicEntity<Device>
     {
-        [Key]
-        public int Id { get; set; }
         public string? DeviceName { get; set; }
 
         public State State { get; set; }

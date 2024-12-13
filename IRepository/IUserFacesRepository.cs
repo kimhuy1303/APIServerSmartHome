@@ -2,7 +2,7 @@
 
 namespace APIServerSmartHome.IRepository
 {
-    public interface IRoomRepository : IRepositoryBase<Room>
+    public interface IUserFacesRepository : IRepositoryBase<UserFaces>
     {
     }
 }
