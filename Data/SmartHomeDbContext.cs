@@ -14,6 +14,9 @@ namespace APIServerSmartHome.Data
         public DbSet<RFIDCard> RFIDCards { get; set; }
         public DbSet<UserFaces> UserFaces { get; set; }
         public DbSet<UserDevices> UserDevices { get; set; }
+        public DbSet<OperateTimeWorking> OperateTimeWorkings { get; set; }
+        public DbSet<IrrigationSchedule> IrrigationSchedules { get; set; }
+        public DbSet<TempHumidValue> TempHumidValues { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

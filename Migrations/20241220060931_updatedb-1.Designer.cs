@@ -4,6 +4,7 @@ using APIServerSmartHome.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APIServerSmartHome.Migrations
 {
     [DbContext(typeof(SmartHomeDbContext))]
-    partial class SmartHomeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241220060931_updatedb-1")]
+    partial class updatedb1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,25 +47,6 @@ namespace APIServerSmartHome.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Device");
-                });
-
-            modelBuilder.Entity("APIServerSmartHome.Entities.IrrigationSchedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("TimeWorking")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IrrigationSchedule");
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.OperateTimeWorking", b =>
@@ -103,8 +87,8 @@ namespace APIServerSmartHome.Migrations
                     b.Property<int>("PowerValue")
                         .HasColumnType("int");
 
-                    b.Property<float>("TimeUsing")
-                        .HasColumnType("real");
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -154,28 +138,6 @@ namespace APIServerSmartHome.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Room");
-                });
-
-            modelBuilder.Entity("APIServerSmartHome.Entities.TempHumidValue", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Humidity")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Temperature")
-                        .HasColumnType("real");
-
-                    b.Property<DateTime?>("TimeSpan")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TempHumidValue");
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.User", b =>

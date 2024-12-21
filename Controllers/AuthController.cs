@@ -24,7 +24,7 @@ namespace APIServerSmartHome.Controllers
         public async Task<ActionResult> Login([FromBody] LoginDTO request)
         {
             var _user = await _unitOfWork.Users.GetUserByUsername(request.Username);
-            if (_user == null || _unitOfWork.Users.VerifyPassword(_user, request.Password)) 
+            if (_user == null || !_unitOfWork.Users.VerifyPassword(_user, request.Password)) 
             {
                 return BadRequest(new { message = "Username or password is invalid!" }); 
             }
@@ -35,7 +35,7 @@ namespace APIServerSmartHome.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult> Register([FromBody] RegisterDTO request)
         {
-            var isExist = _unitOfWork.Users.GetUserByUsername(request.Username);
+            var isExist = await _unitOfWork.Users.GetUserByUsername(request.Username);
             if (isExist != null) return BadRequest(new { message = "Username already existed!" });
             if (!request.Password.Equals(request.ConfirmPassword)) { return BadRequest(new { message = "Passwords do not match!" }); }
             var newUser = new User

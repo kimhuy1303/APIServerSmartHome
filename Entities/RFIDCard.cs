@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using APIServerSmartHome.Enum;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APIServerSmartHome.Entities
 {
@@ -6,6 +7,7 @@ namespace APIServerSmartHome.Entities
     public class RFIDCard : BasicEntity<RFIDCard>
     {
         public string? CardUID {  get; set; }
+        public AccessLevel AccessLevel { get; set; }
         public bool IsActive { get; set; }
         public int? UserId { get; set; }
         public User? User { get; set; }

@@ -14,7 +14,7 @@ namespace APIServerSmartHome.Entities
         public string? Phonenumber { get; set; }
         public string? Address { get; set; }
 
-        public List<UserDevices> UserDevices { get; } = new List<UserDevices>();
+        public virtual List<UserDevices> UserDevices { get; } = new List<UserDevices>();
         public List<UserFaces> UserFaces { get; } = new List<UserFaces>();
         public List<RFIDCard> RFIDCards { get; } = new List<RFIDCard>();
     }

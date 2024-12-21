@@ -1,6 +1,7 @@
 ﻿using APIServerSmartHome.Data;
 using APIServerSmartHome.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq.Expressions;
 
 namespace APIServerSmartHome.IRepository.Repository
@@ -61,9 +62,9 @@ namespace APIServerSmartHome.IRepository.Repository
             return await query.FirstOrDefaultAsync();      
         }
 
-        public async Task<T> GetByNameAsync(string name)
+        public async Task<T> GetByPropertyAsync(string property, string value)
         {
-            return await _dbContext.Set<T>().FindAsync(name);
+            return await _dbContext.Set<T>().FirstOrDefaultAsync(x => EF.Property<string>(x, property) == value);
         }
 
         public async Task UpdateAsync(int id, T entity)

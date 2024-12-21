@@ -13,6 +13,9 @@ namespace APIServerSmartHome.Helper
             .ForMember(dest => dest.Phonenumber, opt => opt.MapFrom(src => src.Phonenumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
+
+            CreateMap<DeviceDTO, Device>()
+                .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.DeviceName));
         }
     }
 }

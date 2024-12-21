@@ -10,5 +10,8 @@ namespace APIServerSmartHome.UnitOfWorks
         IRoomRepository Rooms { get; }
         IUserRepository Users { get; }
         IUserFacesRepository UserFaces { get; }
+        IOperateTimeWorkingRepository OperateTimeWorkings { get; }
+        IUserDevicesRepository UserDevices { get; }
+        IIrrigationScheduleRepository IrrigationSchedules { get; }
     }
 }

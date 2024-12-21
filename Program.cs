@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using APIServerSmartHome.Services;
+using APIServerSmartHome.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,12 @@ builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
 {
     build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 }));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 // Connect database
 var connectdb = builder.Configuration.GetConnectionString("ConnectDB");
@@ -28,9 +36,16 @@ builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IPowerDeviceRepository, PowerDeviceRepository>();
 builder.Services.AddScoped<IUserFacesRepository, UserFacesRepository>();
+builder.Services.AddScoped<IUserDevicesRepository, UserDevicesRepository>();
 builder.Services.AddScoped<IRFIDCardRepository, RFIDCardRepository>();
+builder.Services.AddScoped<IOperateTimeWorkingRepository, OperateTimeWorkingRepository>();
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<FaceRecognitionService>();
+
+// add mapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Validate Response 
 builder.Services.Configure<ApiBehaviorOptions>(options =>

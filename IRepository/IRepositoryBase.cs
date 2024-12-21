@@ -13,7 +13,7 @@ namespace APIServerSmartHome.IRepository
         Task<IEnumerable<T>> GetAllEagerLoadingAsync(Expression<Func<T, object>>[] includes);
         Task<int> CountAsync();
 
-        Task<T> GetByNameAsync(string name);
+        Task<T> GetByPropertyAsync(string property, string value);
 
     }
 }

@@ -5,6 +5,7 @@ namespace APIServerSmartHome.Entities
     [Table("UserFaces")]
     public class UserFaces : BasicEntity<UserFaces>
     {
+        public string? Name { get; set; }
         public string? FaceImage { get; set; }
         public DateTime CreatedAt { get; set; }
 
