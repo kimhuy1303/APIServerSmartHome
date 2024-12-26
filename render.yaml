@@ -1,0 +1,8 @@
+﻿services:
+  - type: web
+    name: MyWebAPI
+    env: dotnet
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: dotnet out/YourProject.dll
+    region: singapore
+    plan: free
