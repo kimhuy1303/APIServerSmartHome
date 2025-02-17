@@ -5,6 +5,7 @@ using APIServerSmartHome.UnitOfWorks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace APIServerSmartHome.Controllers
 {
@@ -65,6 +66,23 @@ namespace APIServerSmartHome.Controllers
                 }
             }
             return BadRequest(new { messaage = "Face not recognized!" });
+        }
+
+        [HttpGet("user-faces")]
+        public async Task<ActionResult> GetAll()
+        {
+            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            var res = await _unitOfWork.UserFaces.GetAllFaceDataOfUser(userId);
+            if (res.IsNullOrEmpty()) return NotFound(new { message = "User does not have any face datas" });
+            return Ok(res);
+        }
+        [HttpGet("user-faces/{faceId}")]
+        public async Task<ActionResult> GetFaceData(int faceId)
+        {
+            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            var userFace = await _unitOfWork.UserFaces.GetFaceDataOfUser(faceId, userId);
+            if (userFace == null) return NotFound(new { message = "Face data does not exist!" });
+            return Ok(userFace);
         }
     }
 }

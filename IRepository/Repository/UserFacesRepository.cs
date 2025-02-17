@@ -10,6 +10,11 @@ namespace APIServerSmartHome.IRepository.Repository
         {
         }
 
+        public async Task<List<UserFaces>> GetAllFaceDataOfUser(int userId)
+        {
+            return await _dbContext.UserFaces.Where(uf => uf.UserId == userId).ToListAsync();
+        }
+
         public async Task<UserFaces> GetFaceDataOfUser(int userFaceId, int userId)
         {
             return await _dbContext.UserFaces.FirstOrDefaultAsync(uf => uf.UserId == userId && uf.Id == userFaceId);

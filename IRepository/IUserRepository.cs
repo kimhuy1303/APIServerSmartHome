@@ -1,4 +1,5 @@
-﻿using APIServerSmartHome.Entities;
+﻿using APIServerSmartHome.DTOs;
+using APIServerSmartHome.Entities;
 
 namespace APIServerSmartHome.IRepository
 {
@@ -6,7 +7,7 @@ namespace APIServerSmartHome.IRepository
     {
         Task<User> GetUserByUsername(string username);
         bool VerifyPassword(User user, string password);
-        Task<List<Device>> GetAllDevices(int userId);
+        Task<List<DeviceWithRoomDTO>> GetAllDevices(int userId);
         Task<Device> GetDevice(int userId,int deviceId);
         Task AddDeviceToUser(UserDevices request);
         Task RemoveDevice(int deviceId, int userId);

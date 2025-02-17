@@ -1,6 +1,8 @@
 ﻿using APIServerSmartHome.Data;
 using APIServerSmartHome.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APIServerSmartHome.IRepository.Repository
 {
@@ -36,37 +38,173 @@ namespace APIServerSmartHome.IRepository.Repository
             return res;
         }
 
-        public async Task<int> TimeDeviceWorkingTotalInDay(int deviceId, int userId)
+        public async Task<ICollection<OperateTimeWorking>> GetHistoryActiveByDeviceId(int deviceId, int userId)
         {
-            var userDevice = await _dbContext.UserDevices.Where(ud => ud.UserId == userId && ud.DeviceId == deviceId).Select(ud => ud.Device).ToListAsync();
-            throw new NotImplementedException();
+            var userDevices = await _dbContext.UserDevices.Where(ud => ud.UserId == userId).Select(ud => ud.DeviceId).ToListAsync();
+            var res = await _dbContext.OperateTimeWorkings.Where(otw => userDevices.Contains(otw.DeviceId)).Include(otw => otw.Device).Where(e => e.State == Enum.State.ON).ToListAsync();
+            return res;
         }
 
-        public async Task<int> TimeDeviceWorkingTotalInMonth(int deviceId, int userId)
+        public async Task<int> TimeDeviceWorkingTotalInDay(int deviceId, int userId, DateTime date)
         {
-            var userDevice = await _dbContext.UserDevices.Where(ud => ud.UserId == userId && ud.DeviceId == deviceId).Select(ud => ud.Device).ToListAsync();
-            throw new NotImplementedException();
+            var userDevice = await _dbContext.UserDevices
+                                    .Where(ud => ud.UserId == userId && ud.DeviceId == deviceId)
+                                    .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                    .Where(otw => otw.OperatingTime.HasValue && otw.OperatingTime.Value.Date == date.Date)
+                                    .OrderBy(otw => otw.OperatingTime)
+                                    .ToListAsync();
+            // Tính tổng thời gian hoạt động
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach(var record in userDevice)
+            {
+                if(record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }else if(record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null ;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
         }
 
-        public async Task<int> TimeDeviceWorkingTotalInWeek(int deviceId, int userId)
+        public async Task<int> TimeDeviceWorkingTotalInMonth(int deviceId, int userId, int month, int year)
         {
-            var userDevice = await _dbContext.UserDevices.Where(ud => ud.UserId == userId && ud.DeviceId == deviceId).Select(ud => ud.Device).ToListAsync();
-            throw new NotImplementedException();
+            var userDevice = await _dbContext.UserDevices
+                                    .Where(ud => ud.UserId == userId && ud.DeviceId == deviceId)
+                                    .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                    .Where(otw => otw.OperatingTime.HasValue && otw.OperatingTime.Value.Month == month && otw.OperatingTime.Value.Year == year)
+                                    .OrderBy(otw => otw.OperatingTime)
+                                    .ToListAsync();
+            // Tính tổng thời gian hoạt động
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach (var record in userDevice)
+            {
+                if (record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }
+                else if (record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
         }
 
-        public Task<int> TimeWorkingTotalInDay(int userId)
+        public async Task<int> TimeDeviceWorkingTotalInWeek(int deviceId, int userId, int week, int year)
         {
-            throw new NotImplementedException();
+            var userDevice = await _dbContext.UserDevices
+                                   .Where(ud => ud.UserId == userId && ud.DeviceId == deviceId)
+                                   .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                   .Where(otw => otw.OperatingTime.HasValue && ISOWeek.GetWeekOfYear(otw.OperatingTime.Value) == week && otw.OperatingTime.Value.Year == year)
+                                   .OrderBy(otw => otw.OperatingTime)
+                                   .ToListAsync();
+            // Lọc theo tuần (dựa trên tuần của năm)
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach (var record in userDevice)
+            {
+                if (record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }
+                else if (record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
         }
 
-        public Task<int> TimeWorkingTotalInMonth(int userId)
+        public async Task<int> TimeWorkingTotalInDay(int userId, DateTime date)
         {
-            throw new NotImplementedException();
+            var userDevice = await _dbContext.UserDevices
+                                    .Where(ud => ud.UserId == userId)
+                                    .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                    .Where(otw => otw.OperatingTime.HasValue && otw.OperatingTime.Value.Date == date.Date)
+                                    .OrderBy(otw => otw.OperatingTime)
+                                    .ToListAsync();
+            // Tính tổng thời gian hoạt động
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach (var record in userDevice)
+            {
+                if (record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }
+                else if (record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
+
         }
 
-        public Task<int> TimeWorkingTotalInWeek(int userId)
+        public async Task<int> TimeWorkingTotalInMonth(int userId, int month, int year)
         {
-            throw new NotImplementedException();
+            var userDevice = await _dbContext.UserDevices
+                                    .Where(ud => ud.UserId == userId)
+                                    .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                    .Where(otw => otw.OperatingTime.HasValue && otw.OperatingTime.Value.Month == month && otw.OperatingTime.Value.Year == year)
+                                    .OrderBy(otw => otw.OperatingTime)
+                                    .ToListAsync();
+            // Tính tổng thời gian hoạt động
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach (var record in userDevice)
+            {
+                if (record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }
+                else if (record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
+        }
+
+        public async Task<int> TimeWorkingTotalInWeek(int userId, int week, int year)
+        {
+            var userDevice = await _dbContext.UserDevices
+                                    .Where(ud => ud.UserId == userId)
+                                    .SelectMany(ud => ud.Device!.OperateTimeWorkings)
+                                    .Where(otw => otw.OperatingTime.HasValue && ISOWeek.GetWeekOfYear(otw.OperatingTime.Value) == week && otw.OperatingTime.Value.Year == year)
+                                    .OrderBy(otw => otw.OperatingTime)
+                                    .ToListAsync();
+            // Lọc theo tuần (dựa trên tuần của năm)
+            TimeSpan totalOperatingTime = TimeSpan.Zero;
+            DateTime? LastStartTime = null;
+
+            foreach (var record in userDevice)
+            {
+                if (record.State == Enum.State.ON)
+                {
+                    LastStartTime = record.OperatingTime!.Value;
+                }
+                else if (record.State == Enum.State.OFF && LastStartTime.HasValue)
+                {
+                    totalOperatingTime += record.OperatingTime!.Value - LastStartTime.Value;
+                    LastStartTime = null;
+                }
+            }
+            return (int)totalOperatingTime.TotalSeconds;
         }
     }
 }

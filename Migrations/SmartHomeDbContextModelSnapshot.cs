@@ -92,21 +92,18 @@ namespace APIServerSmartHome.Migrations
             modelBuilder.Entity("APIServerSmartHome.Entities.PowerDevice", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("TimeUsing")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PowerValue")
                         .HasColumnType("int");
 
-                    b.Property<float>("TimeUsing")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
+                    b.HasKey("Id", "DeviceId", "TimeUsing");
 
                     b.HasIndex("DeviceId");
 
@@ -241,6 +238,9 @@ namespace APIServerSmartHome.Migrations
                     b.Property<string>("FaceImage")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
@@ -273,7 +273,9 @@ namespace APIServerSmartHome.Migrations
                 {
                     b.HasOne("APIServerSmartHome.Entities.Device", "Device")
                         .WithMany("PowerDevices")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
                 });

@@ -25,15 +25,26 @@ namespace APIServerSmartHome.Controllers
         [HttpGet("rooms")]
         public async Task<ActionResult> GetAllRooms()
         {
+            var response = new List<RoomResponseDTO>();
             var result = await _unitOfWork.Rooms.GetAllAsync();
             if (result.IsNullOrEmpty()) return NotFound(new { message = "Does not have any rooms!" });
-            return Ok(result);
+            foreach (var room in result)
+            { 
+                var devices = await _unitOfWork.Rooms.GetAllDevicesInSite(room.Id);
+                response.Add(new RoomResponseDTO
+                {
+                    Id = room.Id,
+                    RoomName = room.RoomName,
+                    AmountOfDevice = devices.Count,
+                });
+            }
+            return Ok(response);
         }
         [HttpGet("rooms/{roomId}")]
         public async Task<ActionResult> GetRoom(int roomId)
         {
             var result = await _unitOfWork.Rooms.GetByIdAsync(roomId);
-            if (result == null) return NotFound(new { message = $"Does not have this roomID: {result.Id}!" });
+            if (result == null) return NotFound(new { message = $"Does not have this roomID: {result!.Id}!" });
             return Ok(result);
         }
 
@@ -61,13 +72,13 @@ namespace APIServerSmartHome.Controllers
         }
 
         [HttpGet("rooms/{roomId}/devices")]
-        public async Task<ActionResult> GetAllDeviceInSite(int id)
+        public async Task<ActionResult> GetAllDeviceInSite(int roomId)
         {
-            var room = await _unitOfWork.Rooms.GetByIdAsync(id);
-            if (room == null) return NotFound(new { message = $"RoomID: {id} does not exist!" });
-            var res = await _unitOfWork.Rooms.GetAllDevicesInSite(id);
+            var room = await _unitOfWork.Rooms.GetByIdAsync(roomId);
+            if (room == null) return NotFound(new { message = $"RoomID: {roomId} does not exist!" });
+            var res = await _unitOfWork.Rooms.GetAllDevicesInSite(roomId);
             if (res.IsNullOrEmpty()) return NotFound(new {message = $"{room.RoomName} does not have any devices!"});
-            return Ok(res);
+            return Ok(res.Select(e => e.DeviceName!).ToList());
         }
 
         [HttpPost("rooms/{roomId}/devices/{deviceId}")]
@@ -75,19 +86,24 @@ namespace APIServerSmartHome.Controllers
         {
             var room = await _unitOfWork.Rooms.GetByIdAsync(roomId);
             var device = await _unitOfWork.Devices.GetByIdAsync(deviceId);
+
             if (device == null) return BadRequest(new { message = $"Device {deviceId} does not exist!" });
             if (room == null) return BadRequest(new { message = $"Site {roomId} does not exist!" });
+            var check = room.Devices.FirstOrDefault(device => device.Id == deviceId);
+            if(check != null) return BadRequest(new {message = $"Device {deviceId} has already existed in this site {room.RoomName}" });
             await _unitOfWork.Rooms.AddDeviceIntoSite(device, room.Id);
             return Ok(new { message = $"Adding {device.DeviceName} into {room.RoomName} successfully!", device = device });
         }
 
-        [HttpDelete("rooms/{roomId}/devices/{deviceId}\"")]
+        [HttpDelete("rooms/{roomId}/devices/{deviceId}")]
         public async Task<ActionResult> RemoveDeviceFromSite(int roomId, int deviceId)
         {
             var room = await _unitOfWork.Rooms.GetByIdAsync(roomId);
             var device = await _unitOfWork.Devices.GetByIdAsync(deviceId);
             if (device == null) return BadRequest(new { message = $"Device {deviceId} does not exist!" });
             if (room == null) return BadRequest(new { message = $"Site {roomId} does not exist!" });
+            var check = room.Devices.FirstOrDefault(device => device.Id == deviceId);
+            if (check == null) return BadRequest(new { message = $"Device {deviceId} does not exist in this site {room.RoomName}" });
             await _unitOfWork.Rooms.RemoveDeviceFromSite(roomId, deviceId);
             return Ok(new { message = $"Removing {device.DeviceName} from {room.RoomName} successfully!" });
         }

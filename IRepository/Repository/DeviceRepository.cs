@@ -17,11 +17,12 @@ namespace APIServerSmartHome.IRepository.Repository
             device.State = state;
             _dbContext.Devices.Update(device);
             await _dbContext.SaveChangesAsync();
-
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
             var operateTimeWorking = new OperateTimeWorking
             {
                 State = state,
-                OperatingTime = DateTime.Now,
+                OperatingTime = vietnamTime,
                 DeviceId = device.Id,
             };
             await _dbContext.OperateTimeWorkings.AddAsync(operateTimeWorking);

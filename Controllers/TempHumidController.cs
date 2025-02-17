@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using System.Globalization;
 
 namespace APIServerSmartHome.Controllers
 {
@@ -44,6 +45,25 @@ namespace APIServerSmartHome.Controllers
         public async Task<ActionResult> GetAllTempandHumid()
         {
             var res = await _dbContext.TempHumidValues.OrderBy(x => x.TimeSpan).ToListAsync();
+            return Ok(res);
+        }
+
+        [HttpGet("statistics/day")]
+        public async Task<ActionResult> GetStatisticsByDay(DateTime day)
+        {
+            var res = await _dbContext.TempHumidValues.Where(thv => thv.TimeSpan!.Value.Date == day.Date).ToListAsync();
+            return Ok(res);
+        }
+        [HttpGet("statistics/month")]
+        public async Task<ActionResult> GetStatisticsByMonth(int month, int year)
+        {
+            var res = await _dbContext.TempHumidValues.Where(thv => thv.TimeSpan!.Value.Month == month && thv.TimeSpan!.Value.Year == year).ToListAsync();
+            return Ok(res);
+        }
+        [HttpGet("statistics/week")]
+        public async Task<ActionResult> GetStatisticsByWeek(int week, int year)
+        {
+            var res = await _dbContext.TempHumidValues.Where(thv => ISOWeek.GetWeekOfYear(thv.TimeSpan!.Value) == week && thv.TimeSpan!.Value.Year == year).ToListAsync();
             return Ok(res);
         }
     }

@@ -34,6 +34,7 @@ namespace APIServerSmartHome.Controllers
         public async Task<ActionResult> GetSchedule()
         {
             var schedule = await _unitOfWork.IrrigationSchedules.GetSchedule();
+            if(schedule == null) { return NotFound(); }
             return Ok(schedule);
         }
 

@@ -43,6 +43,7 @@ builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<FaceRecognitionService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // add mapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -116,16 +117,17 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+    // Configure the HTTP request pipeline.
+    //if (app.Environment.IsDevelopment())
+    //{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors("MyCors");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

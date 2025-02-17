@@ -30,6 +30,8 @@ namespace APIServerSmartHome.Data
                 .HasOne(e => e.User)
                 .WithMany(e => e.UserDevices)
                 .HasForeignKey(e => e.UserId);
+            modelBuilder.Entity<PowerDevice>()
+                .HasKey(e => new { e.DeviceId, e.Id, e.TimeUsing });
             base.OnModelCreating(modelBuilder);
         }
     }

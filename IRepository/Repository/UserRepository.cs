@@ -1,4 +1,5 @@
 ﻿using APIServerSmartHome.Data;
+using APIServerSmartHome.DTOs;
 using APIServerSmartHome.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,9 +39,9 @@ namespace APIServerSmartHome.IRepository.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Device>> GetAllDevices(int userId)
+        public async Task<List<DeviceWithRoomDTO>> GetAllDevices(int userId)
         {
-            var userDevices = await _dbContext.UserDevices.Where(ud => ud.UserId == userId).Select(ud => ud.Device).ToListAsync();
+            var userDevices = await _dbContext.UserDevices.Where(ud => ud.UserId == userId).Select(ud => new DeviceWithRoomDTO { Device = ud.Device, RoomName = ud.Device.Room != null ? ud.Device.Room.RoomName : "No Room Assigned" }).ToListAsync();
             return userDevices;
         }
 
@@ -65,9 +66,15 @@ namespace APIServerSmartHome.IRepository.Repository
             }
         }
 
-        public Task RemovePasswordFromDevice(int deviceId, int userId)
+        public async Task RemovePasswordFromDevice(int deviceId, int userId)
         {
-            throw new NotImplementedException();
+            var device = await _dbContext.UserDevices.FirstOrDefaultAsync(ud => ud.UserId == userId && ud.DeviceId == deviceId);
+            if (device!.Password != null)
+            {
+                device!.Password = null;
+                _dbContext.UserDevices.Update(device);
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         public bool VerifyPassword(User user, string password)

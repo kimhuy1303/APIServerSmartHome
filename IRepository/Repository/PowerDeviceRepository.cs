@@ -1,4 +1,5 @@
 ﻿using APIServerSmartHome.Data;
+using APIServerSmartHome.DTOs;
 using APIServerSmartHome.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -12,17 +13,35 @@ namespace APIServerSmartHome.IRepository.Repository
         {
             _context = context;
         }
-        public async Task AddAsync(PowerDevice entity)
+        public async Task AddAsync(PowerDeviceDTO dto)
         {
-            await _context.PowerDevices.AddAsync(entity);
+            var powerDevice = new PowerDevice
+            {
+                DeviceId = dto.DeviceId,
+                TimeUsing = dto.TimeUsing,
+                PowerValue = dto.PowerValue
+            };
+            await _context.PowerDevices.AddAsync(powerDevice);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<PowerDevice>> GetAllAsync()
+        public async Task<IEnumerable<PowerDevice>> GetAllAsync(int userId)
         {
-            return await _context.PowerDevices.ToListAsync();
+            var userDevices = await _context.UserDevices.Where(x => x.UserId == userId).Select(x => x.Device).ToListAsync();
+            var powerDevices = new List<PowerDevice>();
+            foreach (var userDevice in userDevices)
+            {
+                var powerDevice = await _context.PowerDevices.FirstOrDefaultAsync(x => x.DeviceId == userDevice.Id);
+                powerDevices.Add(powerDevice!);
+            }
+            return powerDevices;
         }
 
-        
+        public async Task<PowerDevice> GetByDeviceIdAsync(int deviceId, int userId)
+        {
+            var userDevice = await _context.UserDevices.FirstOrDefaultAsync(x => x.UserId == userId && x.DeviceId == deviceId);
+            var powerDevice = await _context.PowerDevices.FirstOrDefaultAsync(x => x.DeviceId == userDevice.DeviceId);
+            return powerDevice!;
+        }
     }
 }
