@@ -131,17 +131,30 @@ namespace APIServerSmartHome.Controllers
         }
 
         [HttpPost("devices")]
-        public async Task<ActionResult> AddDevice(DeviceDTO request)
+        public async Task<ActionResult> AddDevice([FromBody] DeviceDTO request)
         {
             var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
             var device = await _unitOfWork.Devices.GetByPropertyAsync("DeviceName", request.DeviceName!);
             if (device == null)
             {
-                var newDevice = new Device
+                var newDevice = new Device { };
+                if(request.RoomId != null)
                 {
-                    DeviceName = request.DeviceName,
-                    State = State.OFF,
-                };
+                    newDevice = new Device
+                    {
+                        DeviceName = request.DeviceName,
+                        State = request.State,
+                        RoomId = request.RoomId,
+                    };
+                }
+                else
+                {
+                    newDevice = new Device
+                    {
+                        DeviceName = request.DeviceName,
+                        State = request.State,
+                    };
+                }
                 await _unitOfWork.Devices.AddAsync(newDevice);
                 var DeviceOwns = new UserDevices
                 {
@@ -149,7 +162,9 @@ namespace APIServerSmartHome.Controllers
                     DeviceId = newDevice.Id,
                 };
                 await _unitOfWork.UserDevices.AddAsync(DeviceOwns);
-                return Ok(new { message = $"Adding {newDevice.DeviceName} successfully!" , device = newDevice});
+                var room = request.RoomId.HasValue ? await _unitOfWork.Rooms.GetByIdAsync(request.RoomId.Value) : null;
+                
+                return Ok(new { message = $"Adding {newDevice.DeviceName} successfully!" , device = new DeviceWithRoomDTO { Device = newDevice, RoomName = room != null ? room.RoomName! : "No Room Assigned" } });
             }
             var isOwns = await _unitOfWork.Users.GetDevice(userId, device.Id);
             if (isOwns == null)
@@ -165,6 +180,15 @@ namespace APIServerSmartHome.Controllers
             return BadRequest(new { message = $"{request.DeviceName} has been existed!" });
         }
 
+        [HttpDelete("devices/{deviceId}")]
+        public async Task<ActionResult> DeleteDevice(int deviceId)
+        {
+            //var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            //var device = await _unitOfWork.Users.GetDevice(userId, deviceId);
+            await _unitOfWork.Devices.DeleteAsync(deviceId);
+            return Ok(new { message = "Deleting device successfully!" });
+        }
+
         [HttpPut("devices/{deviceId}")]
         public async Task<ActionResult> UpdateDevice(int deviceId, DeviceDTO request)
         {
@@ -173,7 +197,7 @@ namespace APIServerSmartHome.Controllers
             if (device == null) return BadRequest(new { message = $"User does not have DeviceId: {deviceId}!" });
             _mapper.Map(request, device);
             await _unitOfWork.Devices.UpdateAsync(deviceId, device);
-            return Ok(new { message = "Updating device successfully!", updateDevice = device});
+            return Ok(new { message = "Updating device successfully!", updateDevice = new DeviceWithRoomDTO { Device = device, RoomName= device.Room!.RoomName! }});
         }
 
         [HttpPut("devices/{deviceId}/change-state")]
@@ -216,17 +240,23 @@ namespace APIServerSmartHome.Controllers
             }).ToList());
         }
         [HttpGet("devices/{deviceId}/history")]
-        public async Task<ActionResult> GetHistoryOfDevice(int deviceId)
+        public async Task<ActionResult> GetHistoryOfDevice(int deviceId, int pageNumber=1, int pageSize=5)
         {
-            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
-            var res = await _unitOfWork.OperateTimeWorkings.GetHistoryActiveByDeviceId(deviceId, userId);
+            //var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            var res = await _unitOfWork.PowerDevices.GetAllByDeviceIdAsync(deviceId);
             if(res.IsNullOrEmpty()) return BadRequest(new { message = "The device has never been worked!" });
-            return Ok(res.Select(e => new
-            {
-                DeviceName = e.Device!.DeviceName,
-                State = e.State,
-                OperatingTime = e.OperatingTime,
-            }).ToList());
+            // Tính tổng số trang
+            int totalRecords = res.Count();
+            int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(res.Skip((pageNumber - 1) * pageSize) 
+                   .Take(pageSize)
+                   .Select(e => new
+                   {
+                       Power = e.PowerValue,
+                       OperatingTime = e.TimeUsing,
+                       TotalPages = totalPages
+                   }).ToList());
         }
         [HttpGet("devices/active")]
         public async Task<ActionResult> GetAllDevicesActive()

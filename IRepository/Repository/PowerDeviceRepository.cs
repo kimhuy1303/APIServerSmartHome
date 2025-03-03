@@ -31,9 +31,15 @@ namespace APIServerSmartHome.IRepository.Repository
             var powerDevices = new List<PowerDevice>();
             foreach (var userDevice in userDevices)
             {
-                var powerDevice = await _context.PowerDevices.FirstOrDefaultAsync(x => x.DeviceId == userDevice.Id);
+                var powerDevice = await _context.PowerDevices.FirstOrDefaultAsync(x => x.DeviceId == userDevice!.Id);
                 powerDevices.Add(powerDevice!);
             }
+            return powerDevices;
+        }
+
+        public async Task<IEnumerable<PowerDevice>> GetAllByDeviceIdAsync(int deviceId)
+        {
+            var powerDevices = await _context.PowerDevices.Where(x => x.DeviceId == deviceId).OrderBy(x => x.TimeUsing).ToListAsync();
             return powerDevices;
         }
 
@@ -42,6 +48,25 @@ namespace APIServerSmartHome.IRepository.Repository
             var userDevice = await _context.UserDevices.FirstOrDefaultAsync(x => x.UserId == userId && x.DeviceId == deviceId);
             var powerDevice = await _context.PowerDevices.FirstOrDefaultAsync(x => x.DeviceId == userDevice.DeviceId);
             return powerDevice!;
+        }
+
+        public async Task<double> GetTotalPowerUsingAsync(int userId)
+        {
+            var userDevices = await _context.UserDevices.Where(x => x.UserId == userId).Select(x => x.Device).ToListAsync();
+            var powerDevices = 0.0;
+            foreach (var userDevice in userDevices)
+            {
+                var powerDevice = await GetTotalPowerUsingByDeviceIdAsync(userDevice!.Id);
+                powerDevices += powerDevice;
+            }
+
+            return powerDevices;
+        }
+
+        public async Task<double> GetTotalPowerUsingByDeviceIdAsync(int deviceId)
+        {
+            var powerDevices = await _context.PowerDevices.Where(x => x.DeviceId == deviceId).SumAsync(e => e.PowerValue);
+            return Math.Round(powerDevices,4);
         }
     }
 }

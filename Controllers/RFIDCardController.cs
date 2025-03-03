@@ -37,36 +37,17 @@ namespace APIServerSmartHome.Controllers
             return Ok(new {message = "Adding rfid card successfully!"});
         }
 
-        [HttpPut("rfidcards/{cardId}/active")]
-        public async Task<ActionResult> ActiveRfidCard(int cardId)
+        [HttpPut("rfidcards/{cardId}")]
+        public async Task<ActionResult> UpdateRfidCard(int cardId, RFIDCardUpdateDTO request)
         {
             var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
             var card = await _unitOfWork.Cards.GetCardByUser(cardId, userId);
             if (card == null) return NotFound(new { message = "Card not found" });
-            if (card.IsActive == true) return BadRequest(new { message = "Active card failed!" });
-            await _unitOfWork.Cards.ChangeActiveState(card, true);
-            return Ok(new { message = "Active card successfully!"});
-
-        }
-        [HttpPut("rfidcards/{cardId}/inactive")]
-        public async Task<ActionResult> InactiveRfidCard(int cardId)
-        {
-            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
-            var card = await _unitOfWork.Cards.GetCardByUser(cardId, userId);
-            if (card == null) return NotFound(new { message = "Card not found" });
-            if (card.IsActive == false) return BadRequest(new { message = "Inactive card failed!" });
-            await _unitOfWork.Cards.ChangeActiveState(card, false);
-            return Ok(new { message = "Inactive card successfully!"});
-        }
-        [HttpPut("rfidcards/{cardId}/grant-permission")]
-        public async Task<ActionResult> GrantAccessLevelForCard(int cardId, AccessLevel accessLevel)
-        {
-            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
-            var card = await _unitOfWork.Cards.GetCardByUser(cardId, userId);
-            if (card == null) return NotFound(new { message = "Card not found" });
-            if (card.AccessLevel == accessLevel) return BadRequest(new { message = "Grant permission failed!" });
-            await _unitOfWork.Cards.GrantAccessLevel(card, accessLevel);
-            return Ok(new {message = "Grant permission successfully", permission = card.AccessLevel });
+            card.CardUID = request.CardUID;
+            card.AccessLevel = request.AccessLevel;
+            card.IsActive = request.IsActive;
+            await _unitOfWork.Cards.UpdateAsync(cardId,card);
+            return Ok(new { message = "Updating rfid card successfully!" });
         }
 
         [HttpGet("rfidcards")]

@@ -12,16 +12,36 @@ namespace APIServerSmartHome.IRepository.Repository
         {
         }
 
-        public async Task ChangeStateDevice(Device device, State state)
+        public async Task ChangeStateDevice(Device device, State newState)
         {
-            device.State = state;
-            _dbContext.Devices.Update(device);
-            await _dbContext.SaveChangesAsync();
             var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            var capacity = device.DeviceName switch
+            {
+                var name when name.StartsWith("Cửa") => CapacityDevice.Servo,
+                var name when name.StartsWith("Đèn") => CapacityDevice.Led,
+                var name when name.StartsWith("Quạt") => CapacityDevice.MiniFan,
+                var name when name.StartsWith("Máy") => CapacityDevice.WaterPump,
+                _ => 0.0
+            };
+            var lastOperate = await _dbContext.OperateTimeWorkings.Where(otw => otw.DeviceId == device.Id).OrderByDescending(otw => otw.OperatingTime).FirstOrDefaultAsync();
+            if(lastOperate?.OperatingTime != null && lastOperate.State == State.ON && newState == State.OFF)
+            {
+                var duration = vietnamTime - lastOperate.OperatingTime!.Value;
+                var devicePower = new PowerDevice
+                {
+                    PowerValue = Math.Round((Math.Round(duration.TotalHours,2) * capacity) / 1000.0,4),
+                    TimeUsing = lastOperate.OperatingTime.Value,
+                    DeviceId = device.Id,
+                };
+                await _dbContext.PowerDevices.AddAsync(devicePower);
+            }
+
+            device.State = newState;
+            _dbContext.Devices.Update(device);
             var operateTimeWorking = new OperateTimeWorking
             {
-                State = state,
+                State = newState,
                 OperatingTime = vietnamTime,
                 DeviceId = device.Id,
             };

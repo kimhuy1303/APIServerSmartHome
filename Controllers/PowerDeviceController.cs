@@ -27,10 +27,18 @@ namespace APIServerSmartHome.Controllers
         }
 
         [HttpGet("{deviceId}")]
-        public async Task<ActionResult> GetPowerUsingByDeviceId(int deviceId)
+        public async Task<ActionResult> GetTotalPowerUsingByDeviceId(int deviceId)
+        {
+            //var userId = int.Parse(User.FindFirst("UserId")!.Value);
+            var res = await _unitOfWork.PowerDevices.GetTotalPowerUsingByDeviceIdAsync(deviceId);
+            return Ok(res);
+        }
+
+        [HttpGet("total-energy")]
+        public async Task<ActionResult> GetTotalPowerUsing()
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
-            var res = await _unitOfWork.PowerDevices.GetByDeviceIdAsync(deviceId, userId);
+            var res = await _unitOfWork.PowerDevices.GetTotalPowerUsingAsync(userId);
             return Ok(res);
         }
 
@@ -40,6 +48,8 @@ namespace APIServerSmartHome.Controllers
             await _unitOfWork.PowerDevices.AddAsync(request);
             return Ok(request);
         }
+
+        
 
 
     }

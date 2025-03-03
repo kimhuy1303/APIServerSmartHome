@@ -17,6 +17,7 @@ namespace APIServerSmartHome.Data
         public DbSet<OperateTimeWorking> OperateTimeWorkings { get; set; }
         public DbSet<IrrigationSchedule> IrrigationSchedules { get; set; }
         public DbSet<TempHumidValue> TempHumidValues { get; set; }
+        public DbSet<SoilHumidity> SoilHumidities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,8 +31,6 @@ namespace APIServerSmartHome.Data
                 .HasOne(e => e.User)
                 .WithMany(e => e.UserDevices)
                 .HasForeignKey(e => e.UserId);
-            modelBuilder.Entity<PowerDevice>()
-                .HasKey(e => new { e.DeviceId, e.Id, e.TimeUsing });
             base.OnModelCreating(modelBuilder);
         }
     }

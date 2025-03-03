@@ -6,7 +6,7 @@ namespace APIServerSmartHome.Entities
     [Table("PowerDevice")]
     public class PowerDevice : BasicEntity<PowerDevice>
     {
-        public int PowerValue { get; set; }
+        public double PowerValue { get; set; }
         public DateTime TimeUsing { get; set; }
 
         public int? DeviceId { get; set; }

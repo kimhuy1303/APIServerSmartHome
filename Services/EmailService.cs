@@ -8,7 +8,7 @@ namespace APIServerSmartHome.Services
         private readonly string _smtpServer = "smtp.gmail.com";
         private readonly int _smtpPort = 587;
         private readonly string _smtpUsername = "kimhuy13032000@gmail.com";
-        private readonly string _smtpPassword = "huynhdangkimhuy1303";
+        private readonly string _smtpPassword = "usdjxiebfkdldjmk";
 
         public async Task SendEmailAsync(string to, string subject, string body)
         {

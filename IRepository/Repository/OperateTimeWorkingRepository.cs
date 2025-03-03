@@ -40,9 +40,9 @@ namespace APIServerSmartHome.IRepository.Repository
 
         public async Task<ICollection<OperateTimeWorking>> GetHistoryActiveByDeviceId(int deviceId, int userId)
         {
-            var userDevices = await _dbContext.UserDevices.Where(ud => ud.UserId == userId).Select(ud => ud.DeviceId).ToListAsync();
+            var userDevices = await _dbContext.UserDevices.Where(ud => ud.UserId == userId && ud.DeviceId == deviceId).Select(ud => ud.DeviceId).ToListAsync();
             var res = await _dbContext.OperateTimeWorkings.Where(otw => userDevices.Contains(otw.DeviceId)).Include(otw => otw.Device).Where(e => e.State == Enum.State.ON).ToListAsync();
-            return res;
+            return res.OrderByDescending(e => e.OperatingTime).ToList();
         }
 
         public async Task<int> TimeDeviceWorkingTotalInDay(int deviceId, int userId, DateTime date)

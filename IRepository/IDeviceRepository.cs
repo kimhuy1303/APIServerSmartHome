@@ -5,7 +5,7 @@ namespace APIServerSmartHome.IRepository
 {
     public interface IDeviceRepository : IRepositoryBase<Device>
     {
-        Task ChangeStateDevice(Device device, State state);
+        Task ChangeStateDevice(Device device, State newState);
         Task<ICollection<OperateTimeWorking>> GetStatesDevice(int deviceId, int userId);
         Task<List<OperateTimeWorking>> getStatesAllDevices(int userId);
 

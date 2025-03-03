@@ -9,4 +9,10 @@ namespace APIServerSmartHome.DTOs
         public string? CardUID { get; set; }
         
     }
+    public class RFIDCardUpdateDTO
+    {
+        public string? CardUID { get; set; }
+        public AccessLevel AccessLevel { get; set; }
+        public bool IsActive { get; set; }
+    }
 }

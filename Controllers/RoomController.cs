@@ -71,6 +71,16 @@ namespace APIServerSmartHome.Controllers
             }
         }
 
+        [HttpPut("rooms/{roomId}")]
+        public async Task<ActionResult> UpdateRoom(int roomId, RoomDTO request)
+        {
+            var room = await _unitOfWork.Rooms.GetByIdAsync(roomId);
+            if (room == null) return NotFound(new { message = $"RoomID: {roomId} does not exist!" });
+            room.RoomName = request.RoomName;
+            await _unitOfWork.Rooms.UpdateAsync(roomId, room);
+            return Ok(new { message = "Update room successfully!", room = room });
+        }
+
         [HttpGet("rooms/{roomId}/devices")]
         public async Task<ActionResult> GetAllDeviceInSite(int roomId)
         {
@@ -78,7 +88,7 @@ namespace APIServerSmartHome.Controllers
             if (room == null) return NotFound(new { message = $"RoomID: {roomId} does not exist!" });
             var res = await _unitOfWork.Rooms.GetAllDevicesInSite(roomId);
             if (res.IsNullOrEmpty()) return NotFound(new {message = $"{room.RoomName} does not have any devices!"});
-            return Ok(res.Select(e => e.DeviceName!).ToList());
+            return Ok(res.Select(e => new {id = e.Id, deviceName = e.DeviceName, state = e.State}).ToList());
         }
 
         [HttpPost("rooms/{roomId}/devices/{deviceId}")]

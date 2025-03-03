@@ -18,6 +18,7 @@ namespace APIServerSmartHome.UnitOfWorks
         public IOperateTimeWorkingRepository OperateTimeWorkings {  get; private set; }
         public IUserDevicesRepository UserDevices { get; private set; }
         public IIrrigationScheduleRepository IrrigationSchedules { get; private set; }
+        
      
         public UnitOfWork(SmartHomeDbContext context) 
         { 
@@ -31,6 +32,7 @@ namespace APIServerSmartHome.UnitOfWorks
             OperateTimeWorkings = new OperateTimeWorkingRepository(_context);
             UserDevices = new UserDevicesRepository(_context);
             IrrigationSchedules = new IrrigationScheduleRepository(_context);
+
         }
 
         public void Dispose() 

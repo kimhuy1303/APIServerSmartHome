@@ -7,6 +7,8 @@ namespace APIServerSmartHome.DTOs
     public class DeviceDTO
     {
         public string? DeviceName { get; set; }
+        public int? RoomId { get; set; }
+        public State State { get; set; }
     }
 
     public class DeviceRoomDTO

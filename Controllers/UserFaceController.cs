@@ -60,7 +60,7 @@ namespace APIServerSmartHome.Controllers
 
                 var similarity = _faceRecognitionService.CompareFacesData(input, dataImgBytes); 
 
-                if(similarity > 60)
+                if(similarity < 50)
                 {
                     return Ok(new { message = "Face recognized!", Username = face.Name });
                 }

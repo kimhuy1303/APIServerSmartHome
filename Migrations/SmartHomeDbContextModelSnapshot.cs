@@ -43,7 +43,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Device");
+                    b.ToTable("Device", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.IrrigationSchedule", b =>
@@ -62,7 +62,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IrrigationSchedule");
+                    b.ToTable("IrrigationSchedule", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.OperateTimeWorking", b =>
@@ -86,28 +86,31 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("OperateTimeWorking");
+                    b.ToTable("OperateTimeWorking", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.PowerDevice", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("DeviceId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("TimeUsing")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PowerValue")
                         .HasColumnType("int");
 
-                    b.HasKey("Id", "DeviceId", "TimeUsing");
+                    b.Property<float>("TimeUsing")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("PowerDevice");
+                    b.ToTable("PowerDevice", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.RFIDCard", b =>
@@ -134,7 +137,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RFIDCard");
+                    b.ToTable("RFIDCard", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.Room", b =>
@@ -150,7 +153,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Room");
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.TempHumidValue", b =>
@@ -172,7 +175,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TempHumidValue");
+                    b.ToTable("TempHumidValue", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.User", b =>
@@ -203,7 +206,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.UserDevices", b =>
@@ -221,7 +224,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("UserDevices");
+                    b.ToTable("UserDevices", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.UserFaces", b =>
@@ -238,9 +241,6 @@ namespace APIServerSmartHome.Migrations
                     b.Property<string>("FaceImage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
@@ -248,7 +248,7 @@ namespace APIServerSmartHome.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserFaces");
+                    b.ToTable("UserFaces", (string)null);
                 });
 
             modelBuilder.Entity("APIServerSmartHome.Entities.Device", b =>
@@ -273,9 +273,7 @@ namespace APIServerSmartHome.Migrations
                 {
                     b.HasOne("APIServerSmartHome.Entities.Device", "Device")
                         .WithMany("PowerDevices")
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeviceId");
 
                     b.Navigation("Device");
                 });
