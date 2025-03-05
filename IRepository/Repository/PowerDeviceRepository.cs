@@ -60,7 +60,7 @@ namespace APIServerSmartHome.IRepository.Repository
                 powerDevices += powerDevice;
             }
 
-            return powerDevices;
+            return Math.Round(powerDevices,4);
         }
 
         public async Task<double> GetTotalPowerUsingByDeviceIdAsync(int deviceId)

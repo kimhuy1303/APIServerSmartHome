@@ -130,6 +130,16 @@ namespace APIServerSmartHome.Controllers
             return Ok(res);
         }
 
+        [HttpGet("devices/available")]
+        public async Task<ActionResult> GetAvailableDevices()
+        {
+            var userId = User.FindFirst("UserId")?.Value;
+            if (userId.IsNullOrEmpty()) return Unauthorized("User not authenticated!");
+            var res = await _unitOfWork.Devices.getAvailableDevices(Int32.Parse(userId!));
+            if (res == null) return NotFound(new { message = $"User does not have any available devices!" });
+            return Ok(res);
+        }
+
         [HttpPost("devices")]
         public async Task<ActionResult> AddDevice([FromBody] DeviceDTO request)
         {
@@ -211,6 +221,20 @@ namespace APIServerSmartHome.Controllers
 
         }
 
+        [HttpPut("devices/change-state-all-fans")]
+        public async Task<ActionResult> ChangeStateAllFans(State state)
+        {
+            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            await _unitOfWork.Devices.ChangeStateAllFans(state);
+            return Ok(new { message = $"All fans are {state.ToString()}!" });
+        }
+        [HttpPut("devices/change-state-all-lights")]
+        public async Task<ActionResult> ChangeStateAllLights(State state)
+        {
+            var userId = Int32.Parse(User.FindFirst("UserId")?.Value!);
+            await _unitOfWork.Devices.ChangeStateAllLights(state);
+            return Ok(new { message = $"All lights are {state.ToString()}!" });
+        }
         [HttpGet("devices/{deviceId}/states")]
         public async Task<ActionResult> GetStatesDevice(int deviceId)
         {

@@ -178,6 +178,26 @@ namespace APIServerSmartHome.Migrations
                     b.ToTable("TempHumidValue", (string)null);
                 });
 
+            modelBuilder.Entity("APIServerSmartHome.Entities.SoilHumidity", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("Value")
+                    .HasColumnType("int");
+
+                b.Property<DateTime?>("TimeSpan")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.ToTable("SoilHumidity", (string)null);
+            });
+
+
             modelBuilder.Entity("APIServerSmartHome.Entities.User", b =>
                 {
                     b.Property<int>("Id")

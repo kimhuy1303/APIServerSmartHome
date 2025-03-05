@@ -6,6 +6,6 @@ namespace APIServerSmartHome.Entities
     public class SoilHumidity : BasicEntity<SoilHumidity>
     {
         public int Value { get; set; }
-        public DateTime TimeSpan { get; set; }
+        public DateTime? TimeSpan { get; set; }
     }
 }

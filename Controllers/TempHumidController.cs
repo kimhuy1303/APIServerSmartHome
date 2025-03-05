@@ -38,13 +38,13 @@ namespace APIServerSmartHome.Controllers
         [HttpGet("last-value")]
         public async Task<ActionResult> GetLastTempandHumid()
         {
-            var res = await _dbContext.TempHumidValues.OrderBy(x => x.TimeSpan).FirstOrDefaultAsync();
+            var res = await _dbContext.TempHumidValues.OrderByDescending(x => x.TimeSpan).FirstOrDefaultAsync();
             return Ok(res);
         }
         [HttpGet("all-values")]
         public async Task<ActionResult> GetAllTempandHumid()
         {
-            var res = await _dbContext.TempHumidValues.OrderBy(x => x.TimeSpan).ToListAsync();
+            var res = await _dbContext.TempHumidValues.OrderByDescending(x => x.TimeSpan).ToListAsync();
             return Ok(res);
         }
 

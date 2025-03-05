@@ -49,14 +49,14 @@ namespace APIServerSmartHome.Controllers
         [HttpGet("statistics/day")]
         public async Task<ActionResult> GetStatisticsByDay(DateTime day)
         {
-            var res = await _dbContext.SoilHumidities.Where(sh => sh.TimeSpan!.Date == day.Date).ToListAsync();
+            var res = await _dbContext.SoilHumidities.Where(sh => sh.TimeSpan!.Value.Date == day.Date).ToListAsync();
             return Ok(res);
         }
 
         [HttpGet("statistics/month")]
         public async Task<ActionResult> GetStatisticsByMonth(int month, int year)
         {
-            var res = await _dbContext.SoilHumidities.Where(sh => sh.TimeSpan!.Month == month && sh.TimeSpan!.Year == year).ToListAsync();
+            var res = await _dbContext.SoilHumidities.Where(sh => sh.TimeSpan!.Value.Month == month && sh.TimeSpan!.Value.Year == year).ToListAsync();
             return Ok(res);
         }
 
